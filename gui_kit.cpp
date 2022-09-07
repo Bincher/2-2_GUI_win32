@@ -1,5 +1,6 @@
 #include <windows.h> //윈도우 프로그래밍에 필요
-
+#include <stdio.h>
+#include <stdlib.h>
 //WndProc : 메시지 처리 코딩
 //WinMain : 윈도우 생성 코딩
 //HINSTANCE : handle to an Instance (Program)
@@ -20,6 +21,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 //리턴타입 함수호출방식지정 함수이름(윈도우 핸들, 이벤트 아이디, 부가정보1, 부가정보2)
 //         (PASCAL, C)
 //		   == _stdcall
+//WPARAM, LPARAM(부가정보)는 4바이트
 
 //int 파스칼호출방식지정 함수(방금 실행된 프로그램 ID, 이전에 실행된 프로그램 ID, 실행 시 넘겨지는 문자열, 윈도우 화면 출력 여부 결정하는 상수 값 넘어옴) 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
@@ -27,7 +29,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	//윈도우 클래스 정의 -> 윈도우 클래스 등록 -> 윈도우 생성 -> 메시지 루프
 	//속성 모음(값 설정) -> 설정을 운영체제에 알림 -> 등록 값을 이용해 윈도우 생성 -> 메시지 처리 반복
 	
-	//클래스 정의
+	//클래스 정의 
 	HWND hWnd;
 	MSG msg;
 	WNDCLASS WndClass;
@@ -38,9 +40,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	WndClass.hInstance = hInstance; //프로그램 ID 기록
 	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	WndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH); //화면 색
 	WndClass.lpszMenuName = NULL;
-	WndClass.lpszClassName = "Hello"; //변경가능
+	WndClass.lpszClassName = "Hello"; //변경가능 -> 정의 등록
 
 	//클래스 등록
 	if (!RegisterClass(&WndClass)) return NULL;
@@ -69,17 +71,47 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 		DispatchMessage(&msg); //내부적으로 WndProc 호출
 	}
 	return msg.wParam;
+
+	//메시지박스 윈도우 생성 및 출력
+	//MessageBox(HWND hWnd, LPCSTR szMsg, LPCSTR szTitle, UINT type);
+	//                     (출력할 메시지)(대화상자 윈도우 타이틀)
 }
 
 //윈도우 프로시저(이벤트가 발생할 때 마다 자동으로 호출)
+//hwnd가 호출 -> WndProc 실행(WndClass.lpfnWndProc = WndProc;)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
+	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
 	switch (mesg)
 	{
-	case WM_DESTROY: //처리 메시지
-		PostQuitMessage(0); //처리 내용 -> 프로그램 종료
+	case WM_LBUTTONDOWN: //처리 메시지=>case문만 변경
+		MessageBox(hWnd, "마우스왼쪽버튼클릭", "알림", MB_OK); //처리 내용 -> 프로그램 종료
+		break;
+		
+	case WM_MOUSEMOVE: //마우스 움직임 이벤트
+		//윈도우 화면에 글자 출력하기
+		int x, y;
+		char szPos[80];
+		HDC hdc;
+		x = HIWORD(lParam); //마우스 좌표
+		y = LOWORD(lParam); //MSDN활용
+		sprintf(szPos, "%03d %03d", x, y);
+		hdc = GetDC(hWnd);
+		TextOut(hdc, x, y, "hello", strlen(szPos));
+		ReleaseDC(hWnd, hdc);
+		/*
+		HDC GetDC(HWND, hWnd);
+		ReleaseDC(HWND hWnd, HDC hdc);
+		*/
+		break;
+		
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return FALSE;
+
 	return FALSE;
 	}
+
 	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
 	//                   HWND hWnd, ...
 }
