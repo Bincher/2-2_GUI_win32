@@ -110,27 +110,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 	switch (mesg)
 	{
 	case WM_LBUTTONDOWN: //처리 메시지=>case문만 변경
-		//MessageBox(hWnd, "안녕하세요", "인사", MB_OK); //처리 내용 -> 프로그램 종료
-		SetWindowText(_hWnd2, "Black"); 
-		break;
-	/*
-	case WM_MOUSEMOVE: //마우스 움직임 이벤트
-		//윈도우 화면에 글자 출력하기
-		int x, y;
-		char szPos[80];
+		HWND hNote;
+		hNote = (HWND)0x004E06C2;
+		//hNote = FindWindow(NULL, "제목없음 - 메모장");
 		HDC hdc;
-		x = HIWORD(lParam); //마우스 좌표
-		y = LOWORD(lParam); //MSDN활용
-		sprintf(szPos, "%03d %03d", x, y);
-		hdc = GetDC(hWnd);
-		TextOut(hdc, x, y, "hello", strlen(szPos));
-		ReleaseDC(hWnd, hdc);
-		
-		//HDC GetDC(HWND, hWnd);
-		//ReleaseDC(HWND hWnd, HDC hdc);
-		
+		hdc = GetDC(hNote);
+		TextOut(hdc, 0, 0, "Hello", 5);
+		ReleaseDC(hNote, hdc);
 		break;
-		*/
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return FALSE;
