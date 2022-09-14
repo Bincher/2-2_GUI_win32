@@ -22,6 +22,8 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 //         (PASCAL, C)
 //		   == _stdcall
 //WPARAM, LPARAM(부가정보)는 4바이트
+LRESULT CALLBACK WndProc2(HWND, UINT, WPARAM, LPARAM);
+HWND _hWnd2; //설명 편하게 하려고 전역변수 사용
 
 //int 파스칼호출방식지정 함수(방금 실행된 프로그램 ID, 이전에 실행된 프로그램 ID, 실행 시 넘겨지는 문자열, 윈도우 화면 출력 여부 결정하는 상수 값 넘어옴) 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
@@ -44,14 +46,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	WndClass.lpszMenuName = NULL;
 	WndClass.lpszClassName = "Hello"; //변경가능 -> 정의 등록
 
+	WndClass.lpfnWndProc = WndProc2;
+	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); //화면 색
+	WndClass.lpszClassName = "WND2"; //변경가능 -> 정의 등록
 	//클래스 등록
 	if (!RegisterClass(&WndClass)) return NULL;
 	//메모리를 따로 기록(주소만)
 
 	//윈도우 생성
 	hWnd = CreateWindow( //실제 윈도우 생성(11개의 인자)
-		"Hello",
-		"Hello",
+		"Hello", //이름이 Hello인 클래스를 이용하여 윈도우 생성
+		"Hello", //윈도우 타이틀
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
@@ -60,17 +65,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 		NULL, NULL, hInstance, NULL
 	);
 
+	//윈도우를 한번 더 생성 == 똑같은 코드를 한번 더
+	_hWnd2 = CreateWindow( //실제 윈도우 생성(11개의 인자)
+		"WND2", //이름이 WND2인 클래스를 이용하여 윈도우 생성
+		"Hello", //윈도우 타이틀
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		NULL, NULL, hInstance, NULL
+	);
+
+	//윈도우 타이틀 관련 함수
 	ShowWindow(hWnd, nCmdShow); //생성된 윈도우를 실제로 출력
 	UpdateWindow(hWnd); //윈도우 API : 이미 만들어진 윈도우에 뭔가 조작을 하는 함수
 						//             첫 번째 인자는 hWnd, 필요함수 및 SW_SHOW 등(windows.h)
 	
+	ShowWindow(_hWnd2, nCmdShow); //변경할 윈도우 타이틀
+	UpdateWindow(_hWnd2); //얻어올 윈도우 타이틀
+
 	//메시지 루프
 	while (GetMessage(&msg, NULL, 0, 0)) //GetMessage()가 false 될 때까지
 	{                                    // == WM_QUIT일때, Application Queue에서 갖고옴
 		TranslateMessage(&msg);
 		DispatchMessage(&msg); //내부적으로 WndProc 호출
+		//TranslateMessage : 단축키(ex.복붙) 처리
+		//DispatchMessage : 이벤트가 발생한 윈도우의 윈도우 프로시저 호출
 	}
 	return msg.wParam;
+	
+
 
 	//메시지박스 윈도우 생성 및 출력
 	//MessageBox(HWND hWnd, LPCSTR szMsg, LPCSTR szTitle, UINT type);
@@ -85,9 +110,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 	switch (mesg)
 	{
 	case WM_LBUTTONDOWN: //처리 메시지=>case문만 변경
-		MessageBox(hWnd, "마우스왼쪽버튼클릭", "알림", MB_OK); //처리 내용 -> 프로그램 종료
+		//MessageBox(hWnd, "안녕하세요", "인사", MB_OK); //처리 내용 -> 프로그램 종료
+		SetWindowText(_hWnd2, "Black"); 
 		break;
-		
+	/*
 	case WM_MOUSEMOVE: //마우스 움직임 이벤트
 		//윈도우 화면에 글자 출력하기
 		int x, y;
@@ -99,12 +125,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		hdc = GetDC(hWnd);
 		TextOut(hdc, x, y, "hello", strlen(szPos));
 		ReleaseDC(hWnd, hdc);
-		/*
-		HDC GetDC(HWND, hWnd);
-		ReleaseDC(HWND hWnd, HDC hdc);
-		*/
-		break;
 		
+		//HDC GetDC(HWND, hWnd);
+		//ReleaseDC(HWND hWnd, HDC hdc);
+		
+		break;
+		*/
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return FALSE;
@@ -112,6 +138,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 	}
 
+	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
+	//                   HWND hWnd, ...
+}
+LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
+{
+	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
+	switch (mesg)
+	{
+	case WM_LBUTTONDOWN: //처리 메시지=>case문만 변경
+		MessageBox(hWnd, "안녕하세요", "인사", MB_OK); //처리 내용 -> 프로그램 종료
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return FALSE;
+	}
 	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
 	//                   HWND hWnd, ...
 }
