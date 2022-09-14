@@ -4,8 +4,9 @@
 
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-HWND _hWnd2;
 LRESULT CALLBACK WndProc2(HWND, UINT, WPARAM, LPARAM);
+HWND _hWnd2;
+HINSTANCE _hInstance;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
 {
@@ -31,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	if (!RegisterClass(&WndClass)) return NULL;
 	if (!RegisterClass(&WndClass2)) return NULL;
 	//메모리를 따로 기록(주소만)
+	_hInstance = hInstance;
 
 	//윈도우 생성
 	hWnd = CreateWindow( //실제 윈도우 생성(11개의 인자)
@@ -49,10 +51,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 		"WND2", //이름이 WND2인 클래스를 이용하여 윈도우 생성
 		"World", //윈도우 타이틀
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		320, 0, 320, 240,
 		hWnd, NULL, hInstance, NULL
 	);
 
@@ -74,19 +73,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
+	HWND hWnd2;
 	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
 	switch (mesg)
 	{
-	case WM_LBUTTONDOWN:
-		SetWindowText(_hWnd2, "Black");
-		break;
+	
 	case WM_DESTROY:
-		/*
 		MessageBox(hWnd, "나죽네", "", MB_OK);
 		DestroyWindow(_hWnd2);
-		PostQuitMessage(0);
-		return FALSE;
-		*/
 		PostQuitMessage(0);
 		return FALSE;
 	}
@@ -94,15 +88,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 }
 LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
-	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
 	switch (mesg)
 	{
-	case WM_LBUTTONDOWN:
-		MessageBox(_hWnd2, "저리가세요", "인사", MB_OK);
-		break;
 	case WM_DESTROY:
-		
-		PostQuitMessage(0);
+		MessageBox(hWnd, "나죽어?", "", MB_OK);
 		return FALSE;
 	}
 	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
