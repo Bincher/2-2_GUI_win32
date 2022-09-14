@@ -5,12 +5,13 @@
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProc2(HWND, UINT, WPARAM, LPARAM);
-HWND _hWnd2;
+
 HINSTANCE _hInstance;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
 {
 	HWND hWnd;
+	HWND _hWnd2;
 	MSG msg;
 	WNDCLASS WndClass, WndClass2;
 	WndClass.style = NULL;
@@ -73,16 +74,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
-	HWND hWnd2;
+	//WndProc도 이벤트가 발생할 때 마다 호출되는 함수
+	static HWND hWnd2;
 	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
 	switch (mesg)
 	{
-	
-	case WM_DESTROY:
-		MessageBox(hWnd, "나죽네", "", MB_OK);
-		DestroyWindow(_hWnd2);
-		PostQuitMessage(0);
-		return FALSE;
+	case WM_CREATE:
+		hWnd2 = CreateWindow(
+			"WND2",
+			"World",
+			WS_OVERLAPPEDWINDOW,
+			320, 0, 320, 240,
+			hWnd, NULL,
+			_hInstance,
+			NULL
+		);
+		break;
+	case WM_LBUTTONDOWN:
+		SetWindowText(hWnd2, "Black");
+		break;
 	}
 	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
 }
