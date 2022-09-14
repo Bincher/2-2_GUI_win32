@@ -1,8 +1,23 @@
 #include <windows.h> //윈도우 프로그래밍에 필요
 #include <stdio.h>
 #include <stdlib.h>
+/*
+#define SW1 1
+#define SW2 2
+#define SW3 4
+#define SW4 8
 
+main()
+{
+	int sw = 0;
+	sw = SW1;
+	sw = sw | SW2;
+	sw = sw | SW3;
 
+	if (sw & SW2)
+		printf("ON");
+}
+*/
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProc2(HWND, UINT, WPARAM, LPARAM);
 
@@ -72,10 +87,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	return msg.wParam;
 }
 
+/*
+WS_BORDER 윈도우테두리
+WS_CHILD 자식 윈도우로 설정
+WS_POPUP 팝업 윈도우로 설정
+WS_VISIBLE 윈도우를 생성과 동시에 화면에 표시
+WS_OVERLAPPEDWINDOW 일반 속성 모두 포함
+*/
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
 	//WndProc도 이벤트가 발생할 때 마다 호출되는 함수
 	static HWND hWnd2;
+	//DWORD style;
+	//style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;	
 	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
 	switch (mesg)
 	{
@@ -83,7 +108,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		hWnd2 = CreateWindow(
 			"WND2",
 			"World",
-			WS_OVERLAPPEDWINDOW,
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CHILD,
 			320, 0, 320, 240,
 			hWnd, NULL,
 			_hInstance,
