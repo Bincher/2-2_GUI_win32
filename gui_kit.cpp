@@ -62,21 +62,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 		NULL, NULL, hInstance, NULL
 	);
 
-	//윈도우를 한번 더 생성 == 똑같은 코드를 한번 더
-	_hWnd2 = CreateWindow( //실제 윈도우 생성(11개의 인자)
-		"WND2", //이름이 WND2인 클래스를 이용하여 윈도우 생성
-		"World", //윈도우 타이틀
-		WS_OVERLAPPEDWINDOW,
-		320, 0, 320, 240,
-		hWnd, NULL, hInstance, NULL
-	);
+
 
 
 	ShowWindow(hWnd, nCmdShow); //생성된 윈도우를 실제로 출력
 	UpdateWindow(hWnd);
 
-	ShowWindow(_hWnd2, nCmdShow); //변경할 윈도우 타이틀
-	UpdateWindow(_hWnd2); //얻어올 윈도우 타이틀
 
 	//메시지 루프
 	while (GetMessage(&msg, NULL, 0, 0)) //GetMessage()가 false 될 때까지
@@ -94,41 +85,79 @@ WS_POPUP 팝업 윈도우로 설정
 WS_VISIBLE 윈도우를 생성과 동시에 화면에 표시
 WS_OVERLAPPEDWINDOW 일반 속성 모두 포함
 */
-
+//0, 400, 1430, 480,
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
-	//WndProc도 이벤트가 발생할 때 마다 호출되는 함수
-	static HWND hWnd2;
-	//DWORD style;
-	//style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;	
-	//WM_RBUTTONDOWN, WM_LBUTTONUP ...
+	static HWND hWnd2; //static은 계속 유지해야할때 사용
+	static HWND hBtn1;
+	static HWND hBtn2;
+	static HWND hEdt1;
+	static HWND hEdt2;
+
+	/*
+	*ES_AUTOHSCROLL 자동수평스크롤
+	*ES_AUTOVSCROLL 자동수직스크롤
+	*ES_MULTILINE 다중라인 지원
+	*ES_NUMBER 숫자만 입력 설정
+	*ES_READONLY 편집 불가능 설정
+	*/
+
 	switch (mesg)
 	{
 	case WM_CREATE:
+		hBtn1 = CreateWindow("BUTTON", "click", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+			0, 0, 100, 100, hWnd, (HMENU)888, _hInstance, NULL);
+		/*
+		hBtn2 = CreateWindow("BUTTON", "click", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+			100, 0, 100, 100, hWnd, (HMENU)999, _hInstance, NULL);'
+		*/
+		//BUTTON은 클래스이름, BS_PUSHBUTTON은 버튼 윈도우 스타일 ES_PUSHBUTTON
+		hEdt1 = CreateWindow("EDIT", "HELLO", WS_VISIBLE | WS_CHILD | WS_BORDER
+			| ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE,
+			100, 0, 200, 100, hWnd, (HMENU)777, _hInstance, NULL);
+		hEdt2 = CreateWindow("EDIT", "", WS_VISIBLE | WS_CHILD 
+			| ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE,
+			0, 102, 302, 100, hWnd, (HMENU)666, _hInstance, NULL);
 		hWnd2 = CreateWindow(
 			"WND2",
 			"World",
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CHILD,
-			320, 0, 320, 240,
+			0, 400, 1430, 480,
 			hWnd, NULL,
 			_hInstance,
 			NULL
 		);
 		break;
+
 	case WM_LBUTTONDOWN:
 		SetWindowText(hWnd2, "Black");
 		break;
+
+	//1.메뉴항목 선택
+	//2.컨트롤 윈도우에서 부모 윈도우에 알림 코드 보낼 때
+	//3.단축키 눌렸을 때
+	case WM_COMMAND:
+		int wNofifyCode = HIWORD(wParam);
+		HWND hWndCtrl = (HWND)lParam;
+		int id = LOWORD(wParam);
+		if (id == 888)
+			MessageBox(hWnd, "안녕하세요", "알림", MB_OK);
+		/*
+		else if (id == 999)
+			MessageBox(hWnd, "홍길동입니다", "알림", MB_OK);
+		*/
+		else if (id == 777)
+		{
+			char szMsg[1024];
+			GetWindowText(hEdt1, szMsg, 1024);
+			SetWindowText(hEdt2, szMsg);
+		}
+		break;
 	}
+	
 	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
 }
 LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
-	switch (mesg)
-	{
-	case WM_DESTROY:
-		MessageBox(hWnd, "나죽어?", "", MB_OK);
-		return FALSE;
-	}
-	return DefWindowProc(hWnd, mesg, wParam, lParam); //기본적인 윈도우 메시지 처리(default)
-	//                   HWND hWnd, ...
+	return DefWindowProc(hWnd, mesg, wParam, lParam);
 }
