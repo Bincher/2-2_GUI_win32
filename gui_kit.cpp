@@ -1,4 +1,4 @@
-#include <windows.h> //À©µµ¿ì ÇÁ·Î±×·¡¹Ö¿¡ ÇÊ¿ä
+ï»¿#include <windows.h> //ìœˆë„ìš° í”„ë¡œê·¸ë˜ë°ì— í•„ìš”
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,8 +6,20 @@
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProc2(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK BtnProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE _hInstance;
 WNDPROC _fpOldBtnProc;
+
+static HWND hEdt1;
+static HWND hWnd1;
+static HWND hWnd2;
+static HWND hStc;
+static HWND hBtn1;
+static HWND hBtn2;
+static HWND hBtn3;
+static HWND hBtn4;
+static HWND hEdt2;
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
 {
@@ -16,20 +28,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	MSG msg;
 	WNDCLASS WndClass, WndClass2;
 	WndClass.style = NULL;
-	WndClass.lpfnWndProc = WndProc; //ÀÌº¥Æ® Ã³¸® ÇÔ¼ö ÀÌ¸§, º¯°æ°¡´É
+	WndClass.lpfnWndProc = WndProc; //ì´ë²¤íŠ¸ ì²˜ë¦¬ í•¨ìˆ˜ ì´ë¦„, ë³€ê²½ê°€ëŠ¥
 	WndClass.cbClsExtra = 0;
 	WndClass.cbWndExtra = 0;
-	WndClass.hInstance = hInstance; //ÇÁ·Î±×·¥ ID ±â·Ï
+	WndClass.hInstance = hInstance; //í”„ë¡œê·¸ë¨ ID ê¸°ë¡
 	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); //È­¸é »ö
+	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); //í™”ë©´ ìƒ‰
 	WndClass.lpszMenuName = NULL;
-	WndClass.lpszClassName = "Hello"; //º¯°æ°¡´É -> Á¤ÀÇ µî·Ï
+	WndClass.lpszClassName = "Hello"; //ë³€ê²½ê°€ëŠ¥ -> ì •ì˜ ë“±ë¡
 
 	WndClass2 = WndClass;
 	WndClass.lpfnWndProc = WndProc2;
-	WndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH); //È­¸é »ö
-	WndClass.lpszClassName = "WND2"; //º¯°æ°¡´É -> Á¤ÀÇ µî·Ï
+	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH); //í™”ë©´ ìƒ‰
+	WndClass.lpszClassName = "WND2"; //ë³€ê²½ê°€ëŠ¥ -> ì •ì˜ ë“±ë¡
 
 	if (!RegisterClass(&WndClass)) return NULL;
 	if (!RegisterClass(&WndClass2)) return NULL;
@@ -37,32 +49,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 	_hInstance = hInstance;
 
 
-	hWnd = CreateWindow( //½ÇÁ¦ À©µµ¿ì »ı¼º(11°³ÀÇ ÀÎÀÚ)
-		"Hello", //ÀÌ¸§ÀÌ HelloÀÎ Å¬·¡½º¸¦ ÀÌ¿ëÇÏ¿© À©µµ¿ì »ı¼º
-		"Hello", //À©µµ¿ì Å¸ÀÌÆ²
+	hWnd = CreateWindow( //ì‹¤ì œ ìœˆë„ìš° ìƒì„±(11ê°œì˜ ì¸ì)
+		"Hello", //ì´ë¦„ì´ Helloì¸ í´ë˜ìŠ¤ë¥¼ ì´ìš©í•˜ì—¬ ìœˆë„ìš° ìƒì„±
+		"ë¶€ëª¨ìœˆë„ìš°: ì»´í“¨í„°ê³µí•™ê³¼ 2í•™ë…„ ê¹€ì„±ë¹ˆ 20190207", //ìœˆë„ìš° íƒ€ì´í‹€
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
+		0,
+		0,
+		500,
+		300,
 		NULL, NULL, hInstance, NULL
 	);
-	_hWnd2 = CreateWindow( //½ÇÁ¦ À©µµ¿ì »ı¼º(11°³ÀÇ ÀÎÀÚ)
-		"WND2", //ÀÌ¸§ÀÌ WND2ÀÎ Å¬·¡½º¸¦ ÀÌ¿ëÇÏ¿© À©µµ¿ì »ı¼º
-		"World", //À©µµ¿ì Å¸ÀÌÆ²
-		WS_OVERLAPPEDWINDOW,
-		320, 0, 320, 240,
-		hWnd, NULL, hInstance, NULL
-	);
-	
-	ShowWindow(hWnd, nCmdShow); //»ı¼ºµÈ À©µµ¿ì¸¦ ½ÇÁ¦·Î Ãâ·Â
+
+
+	ShowWindow(hWnd, nCmdShow); //ìƒì„±ëœ ìœˆë„ìš°ë¥¼ ì‹¤ì œë¡œ ì¶œë ¥
 	UpdateWindow(hWnd);
 
 
 
-	//¸Ş½ÃÁö ·çÇÁ
-	while (GetMessage(&msg, NULL, 0, 0)) //GetMessage()°¡ false µÉ ¶§±îÁö
-	{                                    // == WM_QUITÀÏ¶§, Application Queue¿¡¼­ °®°í¿È
+	//ë©”ì‹œì§€ ë£¨í”„
+	while (GetMessage(&msg, NULL, 0, 0)) //GetMessage()ê°€ false ë  ë•Œê¹Œì§€
+	{                                    // == WM_QUITì¼ë•Œ, Application Queueì—ì„œ ê°–ê³ ì˜´
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -71,61 +77,118 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
-	static HWND hWnd2;
-
 	switch (mesg)
 	{
 	case WM_CREATE:
-
-		hWnd2 = CreateWindow("WND2", "ÀÚ½ÄÀ©µµ¿ì",
+		hWnd2 = CreateWindow(
+			"WND2",
+			"ìì‹ìœˆë„ìš°",
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-			320, 0, 320, 240, hWnd, NULL, _hInstance, NULL);
+			0, 300, 500, 200,
+			hWnd, NULL,
+			_hInstance,
+			NULL
+		);
+		hEdt1 = CreateWindow("EDIT", "", WS_VISIBLE | WS_CHILD | WS_BORDER
+			| ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE,
+			0, 0, 250, 250, hWnd, NULL, _hInstance, NULL);
+		hStc = CreateWindow(
+			"Static",
+			"",
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE| WS_CHILD,
+			250, 0, 270, 270,
+			hWnd, NULL,
+			_hInstance,
+			NULL
+		);
+		SetWindowLong(hStc, GWL_STYLE, 0);
+		ShowWindow(hStc, SW_SHOW);
 		break;
 
-	case WM_MOUSEMOVE:
-		/*
-		int x, y;
-		HDC hdc;
-		x = LOWORD(lParam);
-		y = HIWORD(lParam);
-		hdc = GetDC(hWnd2);
-		TextOut(hdc, x, y, "X", 1);
-		ReleaseDC(hWnd2, hdc);
-		*/
-		/*
-		int x, y;
-		x = LOWORD(lParam);
-		y = HIWORD(lParam);
-		lParam = (x << 16) | y; //½º¿Ò
-		*/
-		SendMessage(hWnd2, 2000, wParam, lParam);
-		//PostMessage(HWnd hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-		break;
-
+		
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return FALSE;
 	}
-	return DefWindowProc(hWnd, mesg, wParam, lParam); //±âº»ÀûÀÎ À©µµ¿ì ¸Ş½ÃÁö Ã³¸®(default)
+	return DefWindowProc(hWnd, mesg, wParam, lParam); //ê¸°ë³¸ì ì¸ ìœˆë„ìš° ë©”ì‹œì§€ ì²˜ë¦¬(default)
 }
 LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
 	switch (mesg)
 	{
-	case 2000:
+	case WM_CREATE:
+		hBtn1 = CreateWindow("BUTTON", "ì´ë¦„ì€", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+			0, 0, 100, 60, hWnd, (HMENU)777, _hInstance, NULL);
+		hBtn2 = CreateWindow("BUTTON", "í•™ë²ˆì€", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+			100, 0, 100, 60, hWnd, (HMENU)888, _hInstance, NULL);
+		hBtn3 = CreateWindow("BUTTON", "ì§€ì›€", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+			200, 0, 100, 60, hWnd, (HMENU)999, _hInstance, NULL);
+		hBtn4 = CreateWindow("BUTTON", "", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+			300, 0, 270, 270, hWnd, (HMENU)111, _hInstance, NULL);
+		hEdt2 = CreateWindow("EDIT", "", WS_VISIBLE | WS_CHILD | WS_BORDER
+			| ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE,
+			0, 60, 300, 100, hWnd, (HMENU)666, _hInstance, NULL);
+
+		_fpOldBtnProc = (WNDPROC)GetWindowLongPtr(hBtn4, GWLP_WNDPROC);
+		SetWindowLongPtr(hBtn4, GWLP_WNDPROC, (LONG_PTR)BtnProc);
+		break;
+
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return FALSE;
+		break;
+
+	case WM_COMMAND:
+		int wNofifyCode = HIWORD(wParam);
+		HWND hWndCtrl = (HWND)lParam;
+		int id = LOWORD(wParam);
+		if (id == 777)
+		{
+			SetWindowText(hEdt1, "ê¹€ì„±ë¹ˆ");
+		}
+		else if (id == 888)
+		{
+
+			SetWindowText(hEdt1, "20190207");
+		}
+		else if (id == 999)
+		{
+			SetWindowText(hEdt1, "");
+		}
+		else if (id == 111)
+		{
+
+		}
+		else if (id == 666)
+		{
+			char szMsg[1024];
+			GetWindowText(hEdt2, szMsg, 1024);
+			SetWindowText(hEdt1, szMsg);
+		}
+
+	
+	}
+
+	return DefWindowProc(hWnd, mesg, wParam, lParam);
+}
+
+LRESULT CALLBACK BtnProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
+{
+	switch (mesg)
+	{
+	case WM_MOUSEMOVE:
 		int x, y;
 		HDC hdc;
 		x = LOWORD(lParam);
 		y = HIWORD(lParam);
-		hdc = GetDC(hWnd);
-		TextOut(hdc, x, y, "X", 1);
-		ReleaseDC(hWnd, hdc);
+		hdc = GetDC(hStc);
+		SetPixel(hdc, x, y, RGB(0, 0, 255));
+		ReleaseDC(hStc, hdc);
 		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return FALSE;
+		//SendMessage(hWnd, 2000, wParam, lParam);
+		break;
 	}
-	
-	return DefWindowProc(hWnd, mesg, wParam, lParam);
+	return CallWindowProc(_fpOldBtnProc, hWnd, mesg, wParam, lParam);
 }
 //==SetWindowLong()
