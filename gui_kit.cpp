@@ -20,8 +20,6 @@ static HWND hBtn3;
 static HWND hBtn4;
 static HWND hEdt2;
 
-
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
 {
 	HWND hWnd;
@@ -61,11 +59,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 		NULL, NULL, hInstance, NULL
 	);
 
-
 	ShowWindow(hWnd, nCmdShow); //생성된 윈도우를 실제로 출력
 	UpdateWindow(hWnd);
-
-
 
 	//메시지 루프
 	while (GetMessage(&msg, NULL, 0, 0)) //GetMessage()가 false 될 때까지
@@ -73,6 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+	return msg.wParam;
 	return msg.wParam;
 }
 
@@ -123,14 +119,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		GetWindowRect(hWnd, &rt2);
 		GetClientRect(hWnd, &rc2);
 
-		MoveWindow(hWnd2, rt.left, rt.bottom, rc.right + rc.left + 100, rc.bottom + rc.top, TRUE);
+		MoveWindow(hWnd2, rt.left, rt.bottom, rc.right + rc.left + 100, rc.bottom + rc.top + 38, TRUE);
 
 		MoveWindow(hBtn1, rc2.left, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
 		MoveWindow(hBtn2, rc2.left + rc2.right / 5, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
 		MoveWindow(hBtn3, rc2.left + rc2.right / 5 * 2, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
 		MoveWindow(hBtn4, rc2.left + rc2.right / 5 * 3, rc2.top, rc2.right / 5 * 2 + 100, rc2.bottom, TRUE);
 		MoveWindow(hEdt2, rc2.left, rc2.top + rc2.bottom / 2, rc2.right / 5 * 3, rt2.top + rc2.bottom / 2, TRUE);
-		//MoveWindow(hWnd2, LOWORD(lParam) - 8, HIWORD(lParam) + 280, 500, 200, TRUE);
 		break;
 
 	case WM_SIZE:
@@ -140,7 +135,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &rc2);
 		MoveWindow(hEdt1, rc.left, rc.top, (rc.right) / 2, rc.bottom, TRUE);
 		MoveWindow(hStc, (rc.right) / 2, rc.top, rc.right, rc.bottom, TRUE);
-		MoveWindow(hWnd2, rt.left, rt.bottom, rc.right + rc.left + 100, rc.bottom + rc.top, TRUE);
+
+		MoveWindow(hWnd2, rt.left, rt.bottom, rc.right + rc.left + 100, rc.bottom + rc.top + 38, TRUE);
 
 		MoveWindow(hBtn1, rc2.left, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
 		MoveWindow(hBtn2, rc2.left + rc2.right / 5, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
@@ -218,10 +214,7 @@ LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 			GetWindowText(hEdt2, szMsg, 1024);
 			SetWindowText(hEdt1, szMsg);
 		}
-
-	
 	}
-
 	return DefWindowProc(hWnd, mesg, wParam, lParam);
 }
 
