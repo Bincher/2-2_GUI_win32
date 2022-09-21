@@ -21,6 +21,7 @@ static HWND hBtn4;
 static HWND hEdt2;
 
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, int nCmdShow)
 {
 	HWND hWnd;
@@ -77,13 +78,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArg, 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
+	HDC hdc;
+	PAINTSTRUCT ps;
+
+	static RECT rt;
+	static RECT rc;
+	static RECT rt2;
+	static RECT rc2;
+
 	switch (mesg)
 	{
 	case WM_CREATE:
 		hWnd2 = CreateWindow(
 			"WND2",
 			"자식윈도우",
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_OVERLAPPED | WS_SYSMENU | WS_POPUP,
 			0, 300, 500, 200,
 			hWnd, NULL,
 			_hInstance,
@@ -95,17 +104,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		hStc = CreateWindow(
 			"Static",
 			"",
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE| WS_CHILD,
-			250, 0, 270, 270,
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CHILD,
+			250, 0, 200, 200,
 			hWnd, NULL,
 			_hInstance,
 			NULL
 		);
+
 		SetWindowLong(hStc, GWL_STYLE, 0);
 		ShowWindow(hStc, SW_SHOW);
+		SetWindowLong(hWnd2, GWL_STYLE, WS_CAPTION);
+		ShowWindow(hWnd2, SW_SHOW);
+		break;
+	
+	case WM_MOVE:
+		GetWindowRect(hWnd, &rt);
+		GetClientRect(hWnd, &rc);
+		GetWindowRect(hWnd, &rt2);
+		GetClientRect(hWnd, &rc2);
+
+		MoveWindow(hWnd2, rt.left, rt.bottom, rc.right + rc.left + 100, rc.bottom + rc.top, TRUE);
+
+		MoveWindow(hBtn1, rc2.left, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
+		MoveWindow(hBtn2, rc2.left + rc2.right / 5, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
+		MoveWindow(hBtn3, rc2.left + rc2.right / 5 * 2, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
+		MoveWindow(hBtn4, rc2.left + rc2.right / 5 * 3, rc2.top, rc2.right / 5 * 2 + 100, rc2.bottom, TRUE);
+		MoveWindow(hEdt2, rc2.left, rc2.top + rc2.bottom / 2, rc2.right / 5 * 3, rt2.top + rc2.bottom / 2, TRUE);
+		//MoveWindow(hWnd2, LOWORD(lParam) - 8, HIWORD(lParam) + 280, 500, 200, TRUE);
 		break;
 
-		
+	case WM_SIZE:
+		GetWindowRect(hWnd, &rt);
+		GetClientRect(hWnd, &rc);
+		GetWindowRect(hWnd, &rt2);
+		GetClientRect(hWnd, &rc2);
+		MoveWindow(hEdt1, rc.left, rc.top, (rc.right) / 2, rc.bottom, TRUE);
+		MoveWindow(hStc, (rc.right) / 2, rc.top, rc.right, rc.bottom, TRUE);
+		MoveWindow(hWnd2, rt.left, rt.bottom, rc.right + rc.left + 100, rc.bottom + rc.top, TRUE);
+
+		MoveWindow(hBtn1, rc2.left, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
+		MoveWindow(hBtn2, rc2.left + rc2.right / 5, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
+		MoveWindow(hBtn3, rc2.left + rc2.right / 5 * 2, rc2.top, rc2.right / 5, rc2.bottom / 2, TRUE);
+		MoveWindow(hBtn4, rc2.left + rc2.right / 5 * 3, rc2.top, rc2.right / 5 * 2 + 100, rc2.bottom, TRUE);
+		MoveWindow(hEdt2, rc2.left, rc2.top + rc2.bottom / 2, rc2.right / 5 * 3, rt2.top + rc2.bottom / 2, TRUE);
+		break;
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return FALSE;
@@ -114,6 +157,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 }
 LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 {
+	static RECT rt;
+	static RECT rc;
+	static RECT rt2;
+	static RECT rc2;
+	
 	switch (mesg)
 	{
 	case WM_CREATE:
@@ -124,7 +172,7 @@ LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		hBtn3 = CreateWindow("BUTTON", "지움", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 			200, 0, 100, 60, hWnd, (HMENU)999, _hInstance, NULL);
 		hBtn4 = CreateWindow("BUTTON", "", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-			300, 0, 270, 270, hWnd, (HMENU)111, _hInstance, NULL);
+			300, 0, 185, 160, hWnd, (HMENU)111, _hInstance, NULL);
 		hEdt2 = CreateWindow("EDIT", "", WS_VISIBLE | WS_CHILD | WS_BORDER
 			| ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE,
 			0, 60, 300, 100, hWnd, (HMENU)666, _hInstance, NULL);
@@ -133,6 +181,10 @@ LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		SetWindowLongPtr(hBtn4, GWLP_WNDPROC, (LONG_PTR)BtnProc);
 		break;
 
+	case WM_SIZE:
+		GetWindowRect(hWnd, &rt);
+		GetClientRect(hWnd, &rc);
+		break;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -158,7 +210,7 @@ LRESULT CALLBACK WndProc2(HWND hWnd, UINT mesg, WPARAM wParam, LPARAM lParam)
 		}
 		else if (id == 111)
 		{
-
+			InvalidateRect(hStc, NULL, TRUE);
 		}
 		else if (id == 666)
 		{
